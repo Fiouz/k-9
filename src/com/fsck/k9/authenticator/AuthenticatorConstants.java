@@ -1,10 +1,8 @@
 package com.fsck.k9.authenticator;
 
-public final class AuthenticatorConstants
-{
+public final class AuthenticatorConstants {
 
-    private AuthenticatorConstants()
-    {
+    private AuthenticatorConstants() {
         // prevent instantiation
     }
 

@@ -24,7 +24,7 @@ import com.fsck.k9.K9;
 /**
  * Synchronous backend for {@link AccountAuthenticator}. No UI nor
  * threading/callback logic involved.
- * 
+ *
  * <p>
  * Method signatures are inspired from {@link AbstractAccountAuthenticator} with
  * modifications to accommodate with the synchronous nature of this class.
@@ -32,23 +32,21 @@ import com.fsck.k9.K9;
  * {@link AccountAuthenticatorResponse} argument since invocations are expected
  * to be synchronous.
  * </p>
- * 
+ *
  * @author Fiouz
  * @see AbstractAccountAuthenticator
  */
-public class AuthenticatorHelper
-{
+public class AuthenticatorHelper {
 
     private final AccountManager mAccountManager;
 
-    public AuthenticatorHelper(final Context context)
-    {
+    public AuthenticatorHelper(final Context context) {
         mAccountManager = AccountManager.get(context);
     }
 
     /**
      * Adds an account of the specified accountType.
-     * 
+     *
      * @param accountType
      *            the type of account to add, will never be {@code null}
      * @param authTokenType
@@ -75,27 +73,22 @@ public class AuthenticatorHelper
      *      String, String, String[], Bundle)
      */
     public Bundle addAccount(final String accountType, final String authTokenType, final String[] requiredFeatures,
-            final Bundle options) throws NetworkErrorException, AuthenticatorHelperException
-    {
+                             final Bundle options) throws NetworkErrorException, AuthenticatorHelperException {
 
-        if (!AccountAuthenticator.ACCOUNT_TYPE.equals(accountType))
-        {
+        if (!AccountAuthenticator.ACCOUNT_TYPE.equals(accountType)) {
             throw new AuthenticatorHelperException(ERROR_CODE_BAD_ARGUMENTS, "Invalid account type requested: "
                     + accountType);
         }
 
-        if (authTokenType != null && !isValidAuthTokenType(authTokenType))
-        {
+        if (authTokenType != null && !isValidAuthTokenType(authTokenType)) {
             throw new AuthenticatorHelperException(ERROR_CODE_BAD_ARGUMENTS, "Unsupported auth token type: "
                     + authTokenType);
         }
-        if (options == null)
-        {
+        if (options == null) {
             throw new AuthenticatorHelperException(ERROR_CODE_BAD_REQUEST, "Missing options (username, password, etc.)");
         }
         final String accountName = options.getString(KEY_ACCOUNT_NAME);
-        if (TextUtils.isEmpty(accountName))
-        {
+        if (TextUtils.isEmpty(accountName)) {
             throw new AuthenticatorHelperException(ERROR_CODE_BAD_ARGUMENTS, "Empty account name");
         }
         final Account account = new Account(accountName, accountType);
@@ -103,22 +96,20 @@ public class AuthenticatorHelper
         // consider online mode is the default value (although unsupported ATM)
         final boolean onlineMode = options.getBoolean(AuthenticatorConstants.KEY_ONLINE, true);
 
-        if (onlineMode)
-        {
+        if (onlineMode) {
             // online mode
 
             /*
              * online mode
-             * 
+             *
              * 1. Use connection parameters from 'options' to perform the actual
              * verification
-             * 
+             *
              * 2. If verification fails, throw exception
              */
 
             // unsupported for now
-            if (!onlinePasswordCheck(options))
-            {
+            if (!onlinePasswordCheck(options)) {
                 throw new AuthenticatorHelperException(ERROR_CODE_BAD_ARGUMENTS, "Verification failed");
             }
         }
@@ -133,8 +124,7 @@ public class AuthenticatorHelper
         result.putString(KEY_ACCOUNT_NAME, accountName);
         result.putString(KEY_ACCOUNT_TYPE, accountType);
 
-        if (authTokenType != null)
-        {
+        if (authTokenType != null) {
             final Bundle authTokenBundle = getAuthToken(account, authTokenType, options);
             final String authToken = authTokenBundle.getString(KEY_AUTHTOKEN);
             result.putString(KEY_AUTHTOKEN, authToken);
@@ -145,14 +135,14 @@ public class AuthenticatorHelper
 
     /**
      * Checks that the user knows the credentials of an account.
-     * 
+     *
      * @param account
      *            the account whose credentials are to be checked, will never be
      *            {@code null}
      * @param options
      *            a Bundle of authenticator-specific options, may be
      *            {@code null}
-     * 
+     *
      * @return a Bundle result. The result will contain:
      *         <ul>
      *         <li> {@link AccountManager#KEY_BOOLEAN_RESULT}, <code>true</code>
@@ -167,18 +157,15 @@ public class AuthenticatorHelper
      *      Account, Bundle)
      */
     public Bundle confirmCredentials(final Account account, final Bundle options) throws NetworkErrorException,
-            AuthenticatorHelperException
-    {
+            AuthenticatorHelperException {
         final boolean confirmed;
 
-        if (options == null)
-        {
+        if (options == null) {
             throw new AuthenticatorHelperException(ERROR_CODE_BAD_REQUEST, "No options specified");
         }
 
         final boolean onlineMode = options.getBoolean(AuthenticatorConstants.KEY_ONLINE, true);
-        if (onlineMode)
-        {
+        if (onlineMode) {
             // online mode
 
             // XXX an improvement would be to retrieve the actual K-9 account
@@ -186,9 +173,7 @@ public class AuthenticatorHelper
             // doesn't have to specify all settings
 
             confirmed = onlinePasswordCheck(options);
-        }
-        else
-        {
+        } else {
             // offline mode, compare the stored password
             final String givenPassword = options.getString(KEY_PASSWORD);
             final String expectedPassword = mAccountManager.getPassword(account);
@@ -204,14 +189,13 @@ public class AuthenticatorHelper
     /**
      * TODO add all required parameters to perform an online password
      * verification (connection parameters, protocol, username, login, etc.)
-     * 
+     *
      * @param options
-     * 
+     *
      * @return
      * @throws AuthenticatorHelperException
      */
-    private boolean onlinePasswordCheck(final Bundle options) throws AuthenticatorHelperException
-    {
+    private boolean onlinePasswordCheck(final Bundle options) throws AuthenticatorHelperException {
         /*
          * TODO use parameters to perform an actual online connection to the
          * mail server in order to verify username/password
@@ -222,7 +206,7 @@ public class AuthenticatorHelper
 
     /**
      * Update the locally stored credentials for an account.
-     * 
+     *
      * @param account
      *            the account whose credentials are to be updated, will never be
      *            {@code null}
@@ -247,17 +231,17 @@ public class AuthenticatorHelper
      *      Account, String, Bundle)
      */
     public Bundle updateCredentials(final Account account, final String authTokenType, final Bundle options)
-            throws NetworkErrorException, AuthenticatorHelperException
-    {
+            throws NetworkErrorException, AuthenticatorHelperException {
         Log.v(K9.LOG_TAG, "Helper.updateCredentials");
-        // commented out because there seem to be a bug regarding updateCredentials() throwing an exception when authTokenType is null 
-//        if (authTokenType != null && !isValidAuthTokenType(authTokenType))
-//        {
-//            throw new AuthenticatorHelperException(ERROR_CODE_BAD_ARGUMENTS, "Unsupported auth token type: "
-//                    + authTokenType);
-//        }
-        if (options == null)
-        {
+        // commented out because there seem to be a bug regarding
+        // updateCredentials() throwing an exception when authTokenType is null
+        // if (authTokenType != null && !isValidAuthTokenType(authTokenType))
+        // {
+        // throw new AuthenticatorHelperException(ERROR_CODE_BAD_ARGUMENTS,
+        // "Unsupported auth token type: "
+        // + authTokenType);
+        // }
+        if (options == null) {
             throw new AuthenticatorHelperException(ERROR_CODE_BAD_REQUEST, "Missing options");
         }
         final String password = options.getString(KEY_PASSWORD);
@@ -270,10 +254,10 @@ public class AuthenticatorHelper
         result.putString(KEY_ACCOUNT_NAME, account.name);
         result.putString(KEY_ACCOUNT_TYPE, account.type);
 
-//        if (authTokenType != null)
-//        {
-//            getAuthToken(account, authTokenType, options);
-//        }
+        // if (authTokenType != null)
+        // {
+        // getAuthToken(account, authTokenType, options);
+        // }
 
         return result;
     }
@@ -281,7 +265,7 @@ public class AuthenticatorHelper
     /**
      * Checks if the account supports all the specified authenticator specific
      * features.
-     * 
+     *
      * @param account
      *            the account to check, will never be {@code null}
      * @param features
@@ -301,8 +285,7 @@ public class AuthenticatorHelper
      *      Account, String[])
      */
     public Bundle hasFeatures(final Account account, final String[] features) throws NetworkErrorException,
-            AuthenticatorHelperException
-    {
+            AuthenticatorHelperException {
         return toBooleanBundle(false); // TODO
     }
 
@@ -311,15 +294,14 @@ public class AuthenticatorHelper
      *            Can be {@code null}.
      * @return
      */
-    private boolean isValidAuthTokenType(final String authTokenType)
-    {
+    private boolean isValidAuthTokenType(final String authTokenType) {
         // we don't support auth token for now
         return false;
     }
 
     /**
      * Gets the authtoken for an account.
-     * 
+     *
      * @param account
      *            the account whose credentials are to be retrieved, will never
      *            be {@code null}
@@ -343,8 +325,7 @@ public class AuthenticatorHelper
      *      Account, String, Bundle)
      */
     public Bundle getAuthToken(final Account account, final String authTokenType, final Bundle options)
-            throws NetworkErrorException, AuthenticatorHelperException
-    {
+            throws NetworkErrorException, AuthenticatorHelperException {
         throw new AuthenticatorHelperException(ERROR_CODE_UNSUPPORTED_OPERATION, "No auth token support");
         // final Bundle bundle = new Bundle(3);
         // mAccountManager.setAuthToken(account, authTokenType,
@@ -357,7 +338,7 @@ public class AuthenticatorHelper
 
     /**
      * Ask the authenticator for a localized label for the given authTokenType.
-     * 
+     *
      * @param authTokenType
      *            the authTokenType whose label is to be returned, will never be
      *            {@code null}
@@ -365,15 +346,14 @@ public class AuthenticatorHelper
      *         if the type isn't known
      * @see AbstractAccountAuthenticator#getAuthTokenLabel(String)
      */
-    public String getAuthTokenLabel(final String authTokenType)
-    {
+    public String getAuthTokenLabel(final String authTokenType) {
         // TODO
         return null;
     }
 
     /**
      * Checks if the removal of this account is allowed.
-     * 
+     *
      * @param account
      *            the account to check, will never be {@code null}
      * @return a Bundle result. The result will contain:
@@ -391,14 +371,12 @@ public class AuthenticatorHelper
      *      Account)
      */
     public Bundle getAccountRemovalAllowed(final Account account) throws NetworkErrorException,
-            AuthenticatorHelperException
-    {
+            AuthenticatorHelperException {
         // TODO for now, allow any account removal
         return toBooleanBundle(true);
     }
 
-    private Bundle toBooleanBundle(final boolean value)
-    {
+    private Bundle toBooleanBundle(final boolean value) {
         final Bundle result = new Bundle(1);
         result.putBoolean(KEY_BOOLEAN_RESULT, value);
         return result;
