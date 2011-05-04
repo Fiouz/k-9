@@ -1,6 +1,7 @@
 
 package com.fsck.k9.activity.setup;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.*;
 
 import com.fsck.k9.*;
 import com.fsck.k9.activity.K9Activity;
+import com.fsck.k9.authenticator.AccountAuthenticator;
 import com.fsck.k9.helper.Utility;
 
 import java.io.UnsupportedEncodingException;
@@ -402,6 +404,18 @@ public class AccountSetupIncoming extends K9Activity implements OnClickListener 
             String password = mPasswordView.getText().toString();
             String userEnc = URLEncoder.encode(user, "UTF-8");
             String passwordEnc = URLEncoder.encode(password, "UTF-8");
+
+            final AccountManager accountManager = AccountManager.get(K9.app);
+            final android.accounts.Account[] systemAccounts = accountManager.getAccountsByType(AccountAuthenticator.ACCOUNT_TYPE);
+            for (final android.accounts.Account systemAccount : systemAccounts) {
+                if (systemAccount.name.equals(mAccount.getUuid())) { // FIXME using UUID for proof of concept purpose
+                    final Bundle options = new Bundle();
+                    options.putString(AccountManager.KEY_PASSWORD, password);
+                    Log.i(K9.LOG_TAG, "Storing password in AccountManager for UUID: " + systemAccount.name);
+                    accountManager.updateCredentials(systemAccount, "bug-Workaround-Should-Be-null", options, null, null, null);
+                    break;
+                }
+            }
 
             if (mAccountSchemes[securityType].startsWith("imap")) {
                 String authType = ((SpinnerOption)mAuthTypeView.getSelectedItem()).label;

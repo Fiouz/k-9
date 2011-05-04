@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accountType="com.fsck.k9.authenticator.AccountType"
+    android:icon="@drawable/icon"
+    android:smallIcon="@drawable/icon"
+    android:label="@string/authenticator_label"
+ />
+<!-- 
+    android:accountPreferences="@xml/authenticator_preferences"
+ -->

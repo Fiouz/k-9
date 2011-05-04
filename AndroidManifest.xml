@@ -56,6 +56,9 @@
                 android:label="@string/delete_messages_label"
                 android:description="@string/read_messages_desc"/>
     <uses-permission android:name="com.fsck.k9.permission.DELETE_MESSAGES"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <application
         android:icon="@drawable/icon"
         android:label="@string/app_name"
@@ -269,6 +272,10 @@
             android:name="com.fsck.k9.activity.AccessibleEmailContentActivity"
             >
         </activity>
+        <activity
+            android:name="com.fsck.k9.authenticator.AuthenticatorActivity"
+            >
+        </activity>
 
         <receiver android:name="com.fsck.k9.service.BootReceiver"
               android:enabled="true"
@@ -364,6 +371,17 @@ otherwise it would make K-9 start at the wrong time
              android:enabled="true"
              >
          </service>
+    <service
+        android:name="com.fsck.k9.authenticator.AuthenticatorService"
+    >
+        <intent-filter>
+            <action
+                android:name="android.accounts.AccountAuthenticator"/>
+        </intent-filter>
+        <meta-data
+            android:name="android.accounts.AccountAuthenticator"
+            android:resource="@xml/authenticator_definition"/>
+    </service>
         <provider
             android:name="com.fsck.k9.provider.AttachmentProvider"
             android:authorities="com.fsck.k9.attachmentprovider"

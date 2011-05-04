@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <PreferenceCategory
+        android:title="General settings"
+    >
+    </PreferenceCategory>
+    <PreferenceScreen
+        android:title="K-9 settings"
+        android:summary="Settings, blah, blah blah..."
+    >
+        <intent
+            android:targetPackage="com.fsck.k9"
+            android:targetClass="com.fsck.k9.activity.Accounts"
+        >
+            <extra
+                android:name="account"
+                android:value="TOTO"/>
+        </intent>
+    </PreferenceScreen>
+</PreferenceScreen>
