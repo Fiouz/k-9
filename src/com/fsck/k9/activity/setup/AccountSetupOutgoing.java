@@ -91,7 +91,7 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
         try {
             if (new URI(mAccount.getStoreUri()).getScheme().startsWith("webdav")) {
                 mAccount.setTransportUri(mAccount.getStoreUri());
-                AccountSetupCheckSettings.actionCheckSettings(this, mAccount, false, true);
+                AccountSetupCheckSettings.actionCheckSettings(this, mAccount, false, true, null/*FIXME*/);
             }
         } catch (URISyntaxException e) {
             // TODO Auto-generated catch block
@@ -301,7 +301,7 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
             uri = new URI(smtpSchemes[securityType], userInfo, mServerView.getText().toString(),
                           Integer.parseInt(mPortView.getText().toString()), null, null, null);
             mAccount.setTransportUri(uri.toString());
-            AccountSetupCheckSettings.actionCheckSettings(this, mAccount, false, true);
+            AccountSetupCheckSettings.actionCheckSettings(this, mAccount, false, true, null/*FIXME*/);
         } catch (UnsupportedEncodingException enc) {
             // This really shouldn't happen since the encoding is hardcoded to UTF-8
             Log.e(K9.LOG_TAG, "Couldn't urlencode username or password.", enc);

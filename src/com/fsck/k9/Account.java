@@ -369,20 +369,20 @@ public class Account implements BaseAccount {
 
     private void checkSystemAccount()
     {
-        final AccountManager accountManager = AccountManager.get(K9.app);
-        final android.accounts.Account[] systemAccounts = accountManager.getAccountsByType(AccountAuthenticator.ACCOUNT_TYPE);
-        for (final android.accounts.Account systemAccount : systemAccounts)
-        {
-            if (systemAccount.name.equals(mUuid)) {
-                return;
-            }
-        }
-        // creating empty account for proof of concept purpose
-        final Bundle options = new Bundle();
-        options.putString(AccountManager.KEY_ACCOUNT_NAME, mUuid);
-        options.putBoolean(AuthenticatorConstants.KEY_ONLINE, false);
-        Log.i(K9.LOG_TAG, "Creating account in AccountManager for UUID:" + mUuid);
-        accountManager.addAccount(AccountAuthenticator.ACCOUNT_TYPE, null, null, options, null, null, null);
+//        final AccountManager accountManager = AccountManager.get(K9.app);
+//        final android.accounts.Account[] systemAccounts = accountManager.getAccountsByType(AccountAuthenticator.ACCOUNT_TYPE);
+//        for (final android.accounts.Account systemAccount : systemAccounts)
+//        {
+//            if (systemAccount.name.equals(mUuid)) {
+//                return;
+//            }
+//        }
+//        // creating empty account for proof of concept purpose
+//        final Bundle options = new Bundle();
+//        options.putString(AccountManager.KEY_ACCOUNT_NAME, mUuid);
+//        options.putBoolean(AuthenticatorConstants.KEY_ONLINE, false);
+//        Log.i(K9.LOG_TAG, "Creating account in AccountManager for UUID:" + mUuid);
+//        accountManager.addAccount(AccountAuthenticator.ACCOUNT_TYPE, null, null, options, null, null, null);
     }
 
 

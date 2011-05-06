@@ -405,18 +405,6 @@ public class AccountSetupIncoming extends K9Activity implements OnClickListener 
             String userEnc = URLEncoder.encode(user, "UTF-8");
             String passwordEnc = URLEncoder.encode(password, "UTF-8");
 
-            final AccountManager accountManager = AccountManager.get(K9.app);
-            final android.accounts.Account[] systemAccounts = accountManager.getAccountsByType(AccountAuthenticator.ACCOUNT_TYPE);
-            for (final android.accounts.Account systemAccount : systemAccounts) {
-                if (systemAccount.name.equals(mAccount.getUuid())) { // FIXME using UUID for proof of concept purpose
-                    final Bundle options = new Bundle();
-                    options.putString(AccountManager.KEY_PASSWORD, password);
-                    Log.i(K9.LOG_TAG, "Storing password in AccountManager for UUID: " + systemAccount.name);
-                    accountManager.updateCredentials(systemAccount, "bug-Workaround-Should-Be-null", options, null, null, null);
-                    break;
-                }
-            }
-
             if (mAccountSchemes[securityType].startsWith("imap")) {
                 String authType = ((SpinnerOption)mAuthTypeView.getSelectedItem()).label;
                 userInfo = authType + ":" + userEnc + ":" + passwordEnc;
@@ -444,7 +432,7 @@ public class AccountSetupIncoming extends K9Activity implements OnClickListener 
             mAccount.setCompression(Account.TYPE_OTHER, compressionOther.isChecked());
             mAccount.setSubscribedFoldersOnly(subscribedFoldersOnly.isChecked());
 
-            AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, false);
+            AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, false, password);
         } catch (Exception e) {
             failure(e);
         }

@@ -234,7 +234,7 @@ public class AccountSetupBasics extends K9Activity
             mAccount.setArchiveFolderName(getString(R.string.special_mailbox_name_archive));
             mAccount.setSpamFolderName(getString(R.string.special_mailbox_name_spam));
             mAccount.setSentFolderName(getString(R.string.special_mailbox_name_sent));
-            AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true);
+            AccountSetupCheckSettings.actionCheckSettings(this, mAccount, true, true, password);
         } catch (UnsupportedEncodingException enc) {
             // This really shouldn't happen since the encoding is hardcoded to UTF-8
             Log.e(K9.LOG_TAG, "Couldn't urlencode username or password.", enc);

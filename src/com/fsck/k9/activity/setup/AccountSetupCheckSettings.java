@@ -51,6 +51,8 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
 
     private static final String EXTRA_CHECK_OUTGOING = "checkOutgoing";
 
+    private static final String EXTRA_PASSWORD = "password";
+
     private Handler mHandler = new Handler();
 
     private ProgressBar mProgressBar;
@@ -67,12 +69,15 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
 
     private boolean mDestroyed;
 
+    private String mPassword;
+
     public static void actionCheckSettings(Activity context, Account account,
-                                           boolean checkIncoming, boolean checkOutgoing) {
+                                           boolean checkIncoming, boolean checkOutgoing, final String password) {
         Intent i = new Intent(context, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account.getUuid());
         i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
         i.putExtra(EXTRA_CHECK_OUTGOING, checkOutgoing);
+        i.putExtra(EXTRA_PASSWORD, password);
         context.startActivityForResult(i, ACTIVITY_REQUEST_CODE);
     }
 
@@ -91,6 +96,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
         mAccount = Preferences.getPreferences(this).getAccount(accountUuid);
         mCheckIncoming = getIntent().getBooleanExtra(EXTRA_CHECK_INCOMING, false);
         mCheckOutgoing = getIntent().getBooleanExtra(EXTRA_CHECK_OUTGOING, false);
+        mPassword = getIntent().getStringExtra(EXTRA_PASSWORD);
 
         new Thread() {
             @Override
@@ -144,6 +150,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                         finish();
                         return;
                     }
+                    savePassword(mPassword);
                     setResult(RESULT_OK);
                     finish();
                 } catch (final AuthenticationFailedException afe) {
@@ -167,6 +174,29 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
 
         }
         .start();
+    }
+
+    private void savePassword(final String password) {
+        if (password == null) {
+            return;
+        }
+        final AccountHelper accountHelper = new AccountHelper(this);
+        final android.accounts.Account systemAccount = accountHelper.findAccountByUuid(mAccount.getUuid());
+        boolean create = false;
+        if (systemAccount == null) {
+            create = true;
+        } else {
+            if (systemAccount.name.equals(mAccount.getDescription())) {
+                accountHelper.setPassword(systemAccount, password);
+            } else {
+                // an account can't be renamed
+                accountHelper.removeAccount(systemAccount);
+                create = true;
+            }
+        }
+        if (create) {
+            accountHelper.createAccount(mAccount.getUuid(), mAccount.getDescription(), password);
+        }
     }
 
     @Override
@@ -362,7 +392,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                                 e.getMessage() == null ? "" : e.getMessage());
                         }
                         AccountSetupCheckSettings.actionCheckSettings(AccountSetupCheckSettings.this, mAccount,
-                                mCheckIncoming, mCheckOutgoing);
+                                mCheckIncoming, mCheckOutgoing, mPassword);
                     }
                 })
                 .setNegativeButton(

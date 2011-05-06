@@ -57,6 +57,7 @@ import android.util.Log;
 
 import com.beetstra.jutf7.CharsetProvider;
 import com.fsck.k9.Account;
+import com.fsck.k9.AccountHelper;
 import com.fsck.k9.K9;
 import com.fsck.k9.R;
 import com.fsck.k9.authenticator.AccountAuthenticator;
@@ -171,14 +172,15 @@ public class ImapStore extends Store {
 
         @Override
         public String getPassword() {
-            final AccountManager accountManager = AccountManager.get(K9.app);
-            final android.accounts.Account[] accounts = accountManager.getAccountsByType(AccountAuthenticator.ACCOUNT_TYPE);
-            for (final android.accounts.Account account : accounts)
-            {
-                if (account.name.equals(mAccount.getUuid())) { // FIXME using UUID for proof of concept purpose
-                    Log.i(K9.LOG_TAG, "Using password from AccountManager / " + account);
-                    return accountManager.getPassword(account);
+            final AccountHelper accountHelper = new AccountHelper(K9.app);
+            final android.accounts.Account account = accountHelper.findAccountByUuid(mAccount.getUuid());
+            if (account != null) {
+                final String password = accountHelper.getPassword(account);
+                if (password != null) {
+                    Log.v(K9.LOG_TAG, "Using password from system credentials storage");
+                    return password;
                 }
+                Log.w(K9.LOG_TAG, "System account found but no password! " + account);
             }
             Log.w(K9.LOG_TAG, "No password found from AccountManager, fallbacking"); // FIXME
             return mPassword;
