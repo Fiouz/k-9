@@ -391,9 +391,9 @@ public class ImapStore extends Store {
             if (ImapResponseParser.equalsIgnoreCase(response.get(0), commandResponse)) {
                 boolean includeFolder = true;
 
-                String folder;
+                String decodedFolderName;
                 try {
-                    folder = decodeFolderName(response.getString(3));
+                    decodedFolderName = decodeFolderName(response.getString(3));
                 } catch (CharacterCodingException e) {
                     Log.w(K9.LOG_TAG, "Folder name not correctly encoded with the UTF-7 variant " +
                             "as defined by RFC 3501: " + response.getString(3), e);
@@ -405,6 +405,8 @@ public class ImapStore extends Store {
                     continue;
                 }
 
+                String folder = decodedFolderName;
+
                 if (mPathDelimeter == null) {
                     mPathDelimeter = response.getString(2);
                     mCombinedPrefix = null;
@@ -412,7 +414,7 @@ public class ImapStore extends Store {
 
                 if (folder.equalsIgnoreCase(mAccount.getInboxFolderName())) {
                     continue;
-                } else if (folder.equalsIgnoreCase(K9.OUTBOX)) {
+                } else if (folder.equals(mAccount.getOutboxFolderName())) {
                     /*
                      * There is a folder on the server with the same name as our local
                      * outbox. Until we have a good plan to deal with this situation
@@ -420,12 +422,13 @@ public class ImapStore extends Store {
                      */
                     continue;
                 } else {
-
-                    if (getCombinedPrefix().length() > 0) {
-                        if (folder.length() >= getCombinedPrefix().length()) {
-                            folder = folder.substring(getCombinedPrefix().length());
+                    int prefixLength = getCombinedPrefix().length();
+                    if (prefixLength > 0) {
+                        // Strip prefix from the folder name
+                        if (folder.length() >= prefixLength) {
+                            folder = folder.substring(prefixLength);
                         }
-                        if (!folder.equalsIgnoreCase(getCombinedPrefix() + folder)) {
+                        if (!decodedFolderName.equalsIgnoreCase(getCombinedPrefix() + folder)) {
                             includeFolder = false;
                         }
                     }
